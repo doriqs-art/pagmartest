@@ -197,7 +197,7 @@ export default function MemoryScreen({
   return (
     <div
       className="absolute inset-0 z-50 overflow-y-auto"
-      style={{ background: 'rgba(19,19,19,0.92)' }}
+      style={{ background: 'rgba(19,19,19,0.7)' }}
     >
       <div
         className="sticky top-0 z-20 flex w-full justify-center"
@@ -205,7 +205,7 @@ export default function MemoryScreen({
           paddingTop: '40px',
           paddingBottom: '48px',
           background:
-            'linear-gradient(to bottom, rgba(19,19,19,0.97) 0%, rgba(19,19,19,0.97) 45%, rgba(19,19,19,0) 100%)',
+            'linear-gradient(to bottom, rgba(19,19,19,0.94) 0%, rgba(19,19,19,0.94) 45%, rgba(19,19,19,0) 100%)',
         }}
       >
         <LogoBlur text="ECHO" fontMin={28.8} fontVw={0.045} fontMax={57.6} blur={6} circleSize={0.7} />
