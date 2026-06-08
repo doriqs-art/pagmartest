@@ -8,7 +8,7 @@ export default function NoiseOverlay() {
         width: '100%',
         height: '100%',
         backgroundImage: "url('/grain.gif')",
-        opacity: 0.05,
+        opacity: 0.12,
         mixBlendMode: 'overlay',
         pointerEvents: 'none',
         zIndex: 99999,
