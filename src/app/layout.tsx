@@ -41,7 +41,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${inter.variable} ${sora.variable} ${syncopate.variable} ${michroma.variable} ${orbitron.variable} antialiased`}
     >
-      <body className="bg-ink text-bone">         <div className="noise-overlay" />
+      <body className="bg-ink text-bone">
         <div className="noise-overlay" />
         <a href="#main-content" className="skip-link">
           Skip to content
