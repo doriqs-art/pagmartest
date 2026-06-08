@@ -197,7 +197,7 @@ export default function MemoryScreen({
   return (
     <div
       className="absolute inset-0 z-50 overflow-y-auto"
-      style={{ background: 'rgba(19,19,19,0.7)' }}
+      style={{ background: '#131313' }}
     >
       <div
         className="sticky top-0 z-20 flex w-full justify-center"
