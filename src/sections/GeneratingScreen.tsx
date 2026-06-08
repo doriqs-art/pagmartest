@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 import LogoBlur from '@/components/LogoBlur';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
 const MICHROMA = 'var(--font-michroma), sans-serif';
 
@@ -81,7 +82,7 @@ export default function GeneratingScreen({
     const eLight3 = new THREE.PointLight(0xffffff, 2, 20);
     eLight3.position.set(0, 6, 0);
     envScene.add(eLight3);
-    const envMap = pmrem.fromScene(new THREE.RoomEnvironment()).texture;
+    const envMap = pmrem.fromScene(new RoomEnvironment()).texture;
     modelScene.environment = envMap;
 
     modelScene.add(new THREE.AmbientLight(0xffffff, 0.4));
