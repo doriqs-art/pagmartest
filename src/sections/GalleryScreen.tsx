@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import LogoBlur from '@/components/LogoBlur';
 import * as sound from '@/lib/sound';
 
@@ -358,6 +359,12 @@ export default function GalleryScreen({ photoUrl, name }: { photoUrl: string | n
 
     const disposables: Array<{ dispose: () => void }> = [];
 
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const envMap = pmrem.fromScene(new RoomEnvironment()).texture;
+    scene.environment = envMap;
+    disposables.push({ dispose: () => pmrem.dispose() });
+    disposables.push({ dispose: () => envMap.dispose() });
+
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2(-2, -2);
     const tiles: THREE.Mesh[] = [];
@@ -550,6 +557,15 @@ export default function GalleryScreen({ photoUrl, name }: { photoUrl: string | n
             disposables.push(mesh.geometry);
             const m = mesh.material;
             (Array.isArray(m) ? m : [m]).forEach((mat) => mat && disposables.push(mat));
+            const newMat = new THREE.MeshStandardMaterial({
+              color: 0xcccccc,
+              metalness: 1.0,
+              roughness: 0.08,
+              envMap: envMap,
+              envMapIntensity: 2.5,
+            });
+            mesh.material = newMat;
+            disposables.push(newMat);
           }
         });
         center = new THREE.Group();
