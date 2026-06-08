@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 import LogoBlur from '@/components/LogoBlur';
 
 const MICHROMA = 'var(--font-michroma), sans-serif';
@@ -57,21 +58,44 @@ export default function GeneratingScreen({
     renderer.setClearColor(0x000000, 0);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(W, H, false);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
 
     const shardRenderer = new THREE.WebGLRenderer({ canvas: shardCanvas, antialias: true, alpha: true });
     shardRenderer.setClearColor(0x000000, 0);
     shardRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     shardRenderer.setSize(W, H, false);
 
-    modelScene.add(new THREE.AmbientLight(0xffffff, 0.9));
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.7);
+    // Build a simple procedural environment map from the scene colors
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    pmrem.compileEquirectangularShader();
+    const envScene = new THREE.Scene();
+    envScene.background = new THREE.Color(0x131313);
+    // Add a few colored lights to the env so the model reflects them
+    const eLight1 = new THREE.PointLight(0xe85d35, 4, 20);
+    eLight1.position.set(5, 3, 5);
+    envScene.add(eLight1);
+    const eLight2 = new THREE.PointLight(0x4488ff, 3, 20);
+    eLight2.position.set(-5, -2, -5);
+    envScene.add(eLight2);
+    const eLight3 = new THREE.PointLight(0xffffff, 2, 20);
+    eLight3.position.set(0, 6, 0);
+    envScene.add(eLight3);
+    const envMap = pmrem.fromScene(new THREE.RoomEnvironment()).texture;
+    modelScene.environment = envMap;
+
+    modelScene.add(new THREE.AmbientLight(0xffffff, 0.4));
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
     keyLight.position.set(3, 5, 4);
     modelScene.add(keyLight);
-    const rimLight = new THREE.DirectionalLight(0xe85d35, 0.7);
+    const rimLight = new THREE.DirectionalLight(0xe85d35, 0.9);
     rimLight.position.set(-4, 1, -3);
     modelScene.add(rimLight);
 
     const disposables: Array<{ dispose: () => void }> = [];
+    disposables.push({ dispose: () => pmrem.dispose() });
+    disposables.push({ dispose: () => envMap.dispose() });
+
     const group = new THREE.Group();
     modelScene.add(group);
 
@@ -125,8 +149,22 @@ export default function GeneratingScreen({
           const mesh = obj as THREE.Mesh;
           if (mesh.isMesh) {
             disposables.push(mesh.geometry);
-            const m = mesh.material;
-            (Array.isArray(m) ? m : [m]).forEach((mat) => mat && disposables.push(mat));
+            const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+            mats.forEach((mat) => {
+              if (mat) {
+                disposables.push(mat);
+                // Override to metallic/reflective
+                const newMat = new THREE.MeshStandardMaterial({
+                  color: 0xcccccc,
+                  metalness: 1.0,
+                  roughness: 0.08,
+                  envMap: envMap,
+                  envMapIntensity: 2.5,
+                });
+                mesh.material = newMat;
+                disposables.push(newMat);
+              }
+            });
           }
         });
         group.add(model);
