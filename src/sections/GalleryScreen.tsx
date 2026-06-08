@@ -365,6 +365,15 @@ export default function GalleryScreen({ photoUrl, name }: { photoUrl: string | n
     disposables.push({ dispose: () => pmrem.dispose() });
     disposables.push({ dispose: () => envMap.dispose() });
 
+    const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(128, {
+      format: THREE.RGBAFormat,
+      generateMipmaps: true,
+      minFilter: THREE.LinearMipmapLinearFilter,
+    });
+    const cubeCamera = new THREE.CubeCamera(0.1, 100, cubeRenderTarget);
+    scene.add(cubeCamera);
+    disposables.push({ dispose: () => cubeRenderTarget.dispose() });
+
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2(-2, -2);
     const tiles: THREE.Mesh[] = [];
@@ -558,11 +567,11 @@ export default function GalleryScreen({ photoUrl, name }: { photoUrl: string | n
             const m = mesh.material;
             (Array.isArray(m) ? m : [m]).forEach((mat) => mat && disposables.push(mat));
             const newMat = new THREE.MeshStandardMaterial({
-              color: 0xcccccc,
-              metalness: 1.0,
-              roughness: 0.08,
-              envMap: envMap,
-              envMapIntensity: 2.5,
+              color: 0x999999,
+              metalness: 0.9,
+              roughness: 0.35,
+              envMap: cubeRenderTarget.texture,
+              envMapIntensity: 1.2,
             });
             mesh.material = newMat;
             disposables.push(newMat);
@@ -623,6 +632,12 @@ export default function GalleryScreen({ photoUrl, name }: { photoUrl: string | n
         if (center && !openRef.current) center.rotation.y += dt * 0.3;
       }
 
+      if (center) {
+        center.visible = false;
+        cubeCamera.position.copy(center.position);
+        cubeCamera.update(renderer, scene);
+        center.visible = true;
+      }
       renderer.render(scene, camera);
     };
     animate();
