@@ -42,7 +42,7 @@ export default function RootLayout({
       className={`${inter.variable} ${sora.variable} ${syncopate.variable} ${michroma.variable} ${orbitron.variable} antialiased`}
     >
       <body className="bg-ink text-bone">
-        <div className="noise-overlay" />
+        import NoiseOverlay from '@/components/NoiseOverlay';
         <a href="#main-content" className="skip-link">
           Skip to content
         </a>
